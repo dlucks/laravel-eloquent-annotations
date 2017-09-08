@@ -1,0 +1,27 @@
+{
+  "name": "dlucks/laravel-eloquent-annotations",
+  "type": "library",
+  "description": "Laravel package for adding property-annotations to Eloquent models automatically.",
+  "homepage": "https://github.com/dlucks/laravel-eloquent-models",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Daniel Lucks"
+    }
+  ],
+  "require": {
+    "php": ">=5.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "EloquentAnnotations\\": "src"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "EloquentAnnotations\\Providers\\EloquentAnnotationsServiceProvider"
+      ]
+    }
+  }
+}
