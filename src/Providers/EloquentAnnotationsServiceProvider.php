@@ -21,6 +21,11 @@ class EloquentAnnotationsServiceProvider extends ServiceProvider
                 AnnotateModels::class,
             ]);
         }
+
+        // Publish vendor files (config, translations).
+        $this->publishes([
+            __DIR__ . '/../config/eloquent_annotations.php' => config_path('eloquent_annotations.php'),
+        ], 'eloquent_annotations');
     }
 
     /**

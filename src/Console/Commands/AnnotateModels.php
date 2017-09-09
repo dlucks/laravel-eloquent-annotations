@@ -22,15 +22,14 @@ class AnnotateModels extends Command
      *
      * @var string
      */
-    protected $description = '...';
+    protected $description = 'Annotate Eloquent model classes with @property tags';
 
     /**
      * @param ClassParser $parser
      */
     public function handle(ClassParser $parser)
     {
-        // TODO: load from config file.
-        $directory = app_path() . '/Models';
+        $directory = config('eloquent_annotations.model_directory', app_path());
 
         $modelInformation = $this->collectModelInformation($directory, $parser);
 
@@ -42,32 +41,41 @@ class AnnotateModels extends Command
 
             foreach ($oldLines as $line) {
 
-                // Skip existing class PHPDoc.
+                // Remove existing class PHPDoc.
                 if (starts_with($line, ['/**', ' *', ' */']) && !$classEntered) {
                     continue;
                 }
 
+                // Add new class PHPDoc.
                 if (starts_with($line, 'class ')) {
-
-                    $newLines[] = "/**\n";
-
-                    foreach ($classInformation['columns'] as $column) {
-                        $newLines[] = " * @property \$$column\n";
-                    }
-
-                    $newLines[] = " */\n";
-
+                    $newLines = array_merge($newLines, $this->createDocLines($classInformation['columns']));
                     $classEntered = true;
                 }
 
                 $newLines[] = $line;
             }
 
-            // TODO: keep file permissions, ownership, etc.
             file_put_contents($classInformation['file'], $newLines);
 
             $this->info('updated: ' . $class);
         }
+    }
+
+    /**
+     * @param array $columns
+     * @return array
+     */
+    protected function createDocLines($columns)
+    {
+        $lines[] = "/**\n";
+
+        foreach ($columns as $column) {
+            $lines[] = " * @property \$$column\n";
+        }
+
+        $lines[] = " */\n";
+
+        return $lines;
     }
 
     /**
@@ -103,7 +111,6 @@ class AnnotateModels extends Command
                 'file' => $file->getRealPath(),
                 'columns' => Schema::getColumnListing($modelInstance->getTable())
             ];
-
         }
 
         return $models;
