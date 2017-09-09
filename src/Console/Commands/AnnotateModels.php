@@ -93,17 +93,18 @@ class AnnotateModels extends Command
 
             $modelClass = $parser->getFullQualifiedClass();
 
+            // We are only interested in classes extending `Model`.
+            if (!$this->extendsEloquentModelClass($modelClass)) {
+                $this->warn('skipped: ' . $modelClass);
+                continue;
+            }
+
             try {
                 $modelInstance = new $modelClass();
             }
 
             catch (\Exception $e) {
                 $this->warn($e->getMessage());
-                continue;
-            }
-
-            if (!($modelInstance instanceof Model)) {
-                $this->warn('skipped: ' . $modelClass);
                 continue;
             }
 
@@ -114,5 +115,22 @@ class AnnotateModels extends Command
         }
 
         return $models;
+    }
+
+    /**
+     * @param string $class
+     * @return bool
+     */
+    protected function extendsEloquentModelClass($class)
+    {
+        $instance = new \ReflectionClass($class);
+
+        while ($instance = $instance->getParentClass()) {
+            if ($instance->getName() === Model::class) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
