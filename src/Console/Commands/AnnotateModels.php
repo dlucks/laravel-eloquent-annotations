@@ -123,6 +123,10 @@ class AnnotateModels extends Command
      */
     protected function extendsEloquentModelClass($class)
     {
+        if (!class_exists($class)) {
+            return false;
+        }
+
         $instance = new \ReflectionClass($class);
 
         while ($instance = $instance->getParentClass()) {
